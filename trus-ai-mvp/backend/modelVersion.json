@@ -1,0 +1,14 @@
+{
+  "version": "indian_v1",
+  "createdAt": "2025-11-23T00:00:00Z",
+  "dataset": "indian_loan_dataset.csv",
+  "trainingDate": "2025-11-20",
+  "metrics": {
+    "auc": 0.84,
+    "accuracy": 0.78
+  },
+  "metadata": {
+    "description": "Indian retail loan approval model for TRUS.AI MVP",
+    "target": "Approved"
+  }
+}
