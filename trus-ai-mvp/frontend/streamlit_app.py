@@ -1,36 +1,61 @@
 import json
+import os
+import sys
+import threading
+import time
 from pathlib import Path
 
 import pandas as pd
 import requests
 import streamlit as st
+import uvicorn
 
 from auth import is_logged_in, logout
 
-
-import os
-import sys
-import threading
-import time
-import requests
-import uvicorn
-
 BACKEND_URL = os.getenv("BACKEND_URL", "http://localhost:8000")
 
+# --- BACKEND MANAGEMENT ---
+def ensure_backend():
+    """Attempt to start the backend if it's not reachable (Local development only)."""
+    if "localhost" in BACKEND_URL or "127.0.0.1" in BACKEND_URL:
+        try:
+            resp = requests.get(f"{BACKEND_URL}/health", timeout=0.5)
+            if resp.status_code == 200:
+                return # Already running
+        except:
+            pass
+            
+        import subprocess
+        backend_dir = Path(__file__).parent.parent / "backend"
+        if backend_dir.exists():
+            try:
+                # Start backend in a new process group/detached
+                subprocess.Popen(
+                    [sys.executable, "-m", "uvicorn", "main:app", "--port", "8000"],
+                    cwd=backend_dir,
+                    stdout=subprocess.DEVNULL,
+                    stderr=subprocess.DEVNULL,
+                    shell=True
+                )
+                time.sleep(2) # Give it time to start
+            except Exception as e:
+                st.sidebar.error(f"Auto-start failed: {e}")
+
 # --- UI STATUS INDICATOR ---
+@st.fragment
 def show_status():
     with st.sidebar:
         st.divider()
         st.markdown("### 🟢 System Status")
         try:
-            resp = requests.get(f"{BACKEND_URL}/health", timeout=1)
+            # Short timeout to avoid blocking UI
+            resp = requests.get(f"{BACKEND_URL}/health", timeout=0.5)
             if resp.status_code == 200:
                 st.success(f"Backend: Online (v{resp.json().get('version', '0.1')})")
             else:
                 st.error(f"Backend: Error {resp.status_code}")
-        except Exception as e:
+        except Exception:
             st.error("Backend: Offline")
-            st.caption(f"Reason: {str(e)[:50]}...")
             if st.button("Try Restart Backend"):
                 ensure_backend()
                 st.rerun()
