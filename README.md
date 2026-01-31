@@ -1,3 +1,12 @@
+---
+title: Nexus AI
+emoji: 🛡️
+colorFrom: indigo
+colorTo: green
+sdk: docker
+pinned: false
+---
+
 # NEXUS AI: Fair & Auditable Credit Scoring
 
 
