@@ -1,19 +1,18 @@
 # NEXUS AI: Fair & Auditable Credit Scoring
 
-**NEXUS AI** (formerly TRUS AI) is a next-generation credit decisioning system designed to bring transparency, fairness, and governance to AI-driven lending. It bridges the gap between black-box AI models and regulatory compliance through immutable audit logging and real-time fairness monitoring.
+> [!NOTE]
+> This project was built during a hackathon to demonstrate Responsible AI practices in Fintech.
 
----
+**NEXUS AI** is an advanced credit decisioning system bringing transparency, fairness, and governance to AI-driven lending. It bridges the gap between black-box AI and regulatory compliance.
 
 ## 🚩 Problem Statement
+
 Traditional AI credit models often suffer from:
-1.  **Bias & Unfairness**: Discrimination against certain demographics due to unbalanced training data.
-2.  **Lack of Transparency**: "Black box" decisions that cannot be explained to regulators or applicants.
-3.  **Weak Governance**: No immutable record of *why* a decision was made or which model version was used.
-4.  **Poor UX**: Clunky, outdated interfaces for loan officers and risk managers.
+1.  **Bias**: Discrimination against demographics due to unbalanced data.
+2.  **Opacity**: "Black box" decisions that cannot be explained.
+3.  **Weak Governance**: No immutable record of *why* a decision was made.
 
-**NEXUS AI solves this by enforcing cryptographic audit trails, real-time disparate impact monitoring, and providing a "Glassmorphic" Pro-Max UI for decision transparency.**
-
----
+**NEXUS AI solves this via cryptographic audit trails, real-time fairness monitoring, and a "Glassmorphic" Pro-Max UI.**
 
 ## 🏗️ Architecture
 
@@ -23,69 +22,42 @@ graph TD
     Frontend -->|HTTPS/JSON| Backend[FastAPI Server]
     
     subgraph "Core Services"
-        Backend -->|Inference| ML_Engine[Model Engine (Random Forest)]
+        Backend -->|Inference| ML_Engine[Model Engine]
         Backend -->|Log Decision| Audit[Audit Service]
         Backend -->|Check Fairness| Bias_Engine[Fairness Monitor]
     end
     
     subgraph "Data Layer"
-        Audit -->|Cryptographic Hash| DB[(SQLite / Audit Log)]
-        ML_Engine -->|Load| Artifacts[Model .pkl / Encoders]
+        Audit -->|SHA-256 Hash| DB[(SQLite Audit Log)]
+        ML_Engine -->|Load| Artifacts[Model .pkl]
     end
     
     Bias_Engine -.->|Alerts| Frontend
 ```
 
----
+## �️ Tech Stack
 
-## 💻 Tech Stack
+![Python](https://img.shields.io/badge/Python-3.9%2B-blue)
+![FastAPI](https://img.shields.io/badge/Backend-FastAPI-009688)
+![Streamlit](https://img.shields.io/badge/Frontend-Streamlit-FF4B4B)
+![Scikit-Learn](https://img.shields.io/badge/ML-Scikit--Learn-F7931E)
+![SQLAlchemy](https://img.shields.io/badge/DB-SQLAlchemy-red)
 
-*   **Frontend**: Streamlit (Python) with Custom CSS/Glassmorphism Theme.
-*   **Backend**: FastAPI (Python) for High-Performance Async API.
-*   **Database**: SQLite (SQLAlchemy ORM) for relational data and audit trails.
-*   **Machine Learning**: Scikit-Learn (Random Forest, Logistic Regression), Pandas, Numpy.
-*   **Visualization**: Altair & Plotly for interactive dashboards.
-*   **Encoders**: OneHotEncoder & StandardScaler for robust feature processing.
+*   **Frontend**: Streamlit, Altair, Custom CSS (Glassmorphism)
+*   **Backend**: FastAPI, Uvicorn
+*   **Database**: SQLite
+*   **AI/ML**: Random Forest Classifier, SHAP Explainability
 
----
+## ⚙️ Setup & Build Reproducibility
 
-## 🤖 AI Tools Used
-
-*   **Google Gemini (DeepMind)**: Primary Agentic AI for code generation, architectural reasoning, and task management.
-*   **SquirrelScan**: Automated tool for auditing website SEO, security, and performance.
-*   **Altair**: AI-optimized declarative statistical visualization library.
-
----
-
-## 🧠 Prompt Strategy Summary
-
-We employed an **Agentic Iterative Refinement** strategy:
-1.  **Discovery**: "Audit the current codebase and identify logical flaws." -> Found model ignoring categorical variables.
-2.  **Planning**: "Create a step-by-step implementation plan." -> Generated `implementation_plan.md`.
-3.  **Execution (Step-by-Step)**:
-    *   *Backend*: Refactored `audit.py` for immutable logs.
-    *   *Frontend*: Applied "Glassmorphism" UI and fixed CSS collisions.
-    *   *ML*: Retrained model with `ColumnTransformer` to fix logic gaps.
-4.  **Verification**: Used `squirrelscan` to verify SEO/Best Practices and manual loop for UI testing.
-
----
-
-## 🏁 Final Output
-
-*   **Executive Dashboard**: Real-time view of "Approval Mix" and "Risk Profile" using interactive Donut Charts.
-*   **Fairness Monitor**: Live tracking of *Disparate Impact Ratio* to ensure compliance.
-*   **Live Prediction**: Sandbox environment to test loan scenarios with immediate AI explanations.
-*   **Secure Auth**: Token-based authentication flow separating Frontend and Backend logic.
-
----
-
-## ⚙️ Build & Reproducibility Instructions (Mandatory)
+> [!IMPORTANT]
+> Follow these instructions to build and run the project locally.
 
 ### Prerequisites
-*   **Python 3.9+** installed.
-*   **Git** installed.
+*   Python 3.9 or higher
+*   Git
 
-### Setup Instructions
+### Installation Steps
 
 1.  **Clone the Repository**
     ```bash
@@ -97,34 +69,59 @@ We employed an **Agentic Iterative Refinement** strategy:
     ```bash
     pip install -r trus-ai-mvp/requirements.txt
     ```
-    *(Note: If `requirements.txt` is missing, install core libs: `pip install fastapi uvicorn streamlit pandas scikit-learn sqlalchemy altair requests`)*
+    *(If requirements file is missing, install core libs manually)*:
+    ```bash
+    pip install fastapi uvicorn streamlit pandas scikit-learn sqlalchemy altair requests
+    ```
 
 3.  **Run the Application**
 
-    **Step A: Start the Backend** (Open Terminal 1)
+    **Option A: Dedicated Terminals (Recommended)**
+    *Terminal 1 (Backend)*:
     ```bash
     cd trus-ai-mvp/backend
-    # Windows
     ./run_backend.bat
-    # Linux/Mac: uvicorn main:app --reload
+    # Or: uvicorn main:app --reload
     ```
 
-    **Step B: Start the Frontend** (Open Terminal 2)
+    *Terminal 2 (Frontend)*:
     ```bash
     cd trus-ai-mvp/frontend
-    # Windows
     ./run_frontend.bat
-    # Linux/Mac: streamlit run streamlit_app.py
+    # Or: streamlit run streamlit_app.py
     ```
 
 4.  **Access the App**
-    *   Frontend: [http://localhost:8501](http://localhost:8501)
-    *   API Docs: [http://localhost:8000/docs](http://localhost:8000/docs)
+    *   **Dashboard**: `http://localhost:8501`
+    *   **API Docs**: `http://localhost:8000/docs`
+
+## 🤖 AI Tools Used
+
+| Tool | Purpose |
+|------|---------|
+| **Google Gemini** | Primary Agentic AI for coding, debugging, and architecture |
+| **SquirrelScan** | Automated SEO & Security auditing |
+| **Altair** | AI-optimized statistical visualization |
+
+## 🧠 Prompt Strategy Summary
+
+We used an **Agentic Iterative Refinement** strategy:
+1.  **Audit**: "Scan codebase for logical flaws." -> Found model ignoring categorical variables.
+2.  **Plan**: "Draft implementation plan." -> Created step-by-step roadmap.
+3.  **Execute**: "Refactor backend, then upgrade frontend." -> Systematic improvements.
+4.  **Verify**: "Run audit tool and manual checks." -> Ensured high-quality output.
+
+## 📂 Source Code
+
+*   [`trus-ai-mvp/backend`](trus-ai-mvp/backend): FastAPI service and Database models.
+*   [`trus-ai-mvp/frontend`](trus-ai-mvp/frontend): Streamlit UI pages.
+*   [`indian_model_training`](indian_model_training): ML training scripts.
+
+## 🏁 Final Output
+
+*   **Executive Dashboard**: Real-time "Approval Mix" & "Risk Profile" charts.
+*   **Fairness Monitor**: Tracks Disparate Impact Ratio live.
+*   **Audit Log**: Immutable record of every credit decision.
 
 ---
-
-## 📂 Source Code Structure
-*   `trus-ai-mvp/backend`: API & Database logic.
-*   `trus-ai-mvp/frontend`: UI logic.
-*   `indian_model_training`: ML Scripts & Jupyter Notebooks.
-
+*Built with ❤️ by Mahaboob26*
