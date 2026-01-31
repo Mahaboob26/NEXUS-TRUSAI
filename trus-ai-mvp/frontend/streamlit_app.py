@@ -63,6 +63,26 @@ if not os.getenv("BACKEND_URL"):
 
 BACKEND_URL = os.getenv("BACKEND_URL", "http://localhost:8000")
 
+# --- UI STATUS INDICATOR ---
+def show_status():
+    with st.sidebar:
+        st.divider()
+        st.markdown("### 🟢 System Status")
+        try:
+            resp = requests.get(f"{BACKEND_URL}/health", timeout=1)
+            if resp.status_code == 200:
+                st.success(f"Backend: Online (v{resp.json().get('version', '0.1')})")
+            else:
+                st.error(f"Backend: Error {resp.status_code}")
+        except Exception as e:
+            st.error("Backend: Offline")
+            st.caption(f"Reason: {str(e)[:50]}...")
+            if st.button("Try Restart Backend"):
+                ensure_backend()
+                st.rerun()
+
+show_status()
+
 
 def call_predict(features: dict, consent: dict):
     resp = requests.post(
