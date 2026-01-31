@@ -5,7 +5,8 @@ import altair as alt
 from theme import apply_bank_theme
 from auth import is_logged_in, logout
 
-BACKEND_URL = "http://localhost:8000"
+import os
+BACKEND_URL = os.getenv("BACKEND_URL", "http://localhost:8000")
 
 def get_summary():
     try:

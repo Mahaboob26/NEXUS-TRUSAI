@@ -1,7 +1,8 @@
 import requests
 import streamlit as st
 
-BACKEND_URL = "http://localhost:8000"
+import os
+BACKEND_URL = os.getenv("BACKEND_URL", "http://localhost:8000")
 
 
 def register_user(username: str, password: str) -> bool:

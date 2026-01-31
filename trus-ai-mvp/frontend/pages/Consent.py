@@ -8,7 +8,8 @@ import streamlit as st
 from auth import is_logged_in, logout
 
 
-BACKEND_URL = "http://localhost:8000"
+import os
+BACKEND_URL = os.getenv("BACKEND_URL", "http://localhost:8000")
 
 
 # Allow direct import of the consent engine so we can read profile and access logs
