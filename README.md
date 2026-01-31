@@ -1,7 +1,5 @@
 # NEXUS AI: Fair & Auditable Credit Scoring
 
-> [!NOTE]
-> This project was built during a hackathon to demonstrate Responsible AI practices in Fintech.
 
 **NEXUS AI** is an advanced credit decisioning system bringing transparency, fairness, and governance to AI-driven lending. It bridges the gap between black-box AI and regulatory compliance.
 
