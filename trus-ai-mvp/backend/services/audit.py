@@ -257,3 +257,86 @@ def get_summary_stats() -> Dict[str, Any]:
     finally:
         session.close()
 
+
+def get_request_volume(days: int = 7) -> List[Dict[str, Any]]:
+    """Get daily application volume for the last N days."""
+    from sqlalchemy import func, cast, Date
+    from datetime import timedelta
+    
+    session = SessionLocal()
+    try:
+        since = datetime.utcnow() - timedelta(days=days)
+        
+        # SQLite's date function might differ, but SQLAlchemy usually abstracts it.
+        # For SQLite, we might need func.date(AuditLog.timestamp)
+        
+        q = (
+            session.query(
+                func.date(AuditLog.timestamp).label("date"), 
+                func.count(AuditLog.id).label("count")
+            )
+            .filter(AuditLog.timestamp >= since)
+            .group_by(func.date(AuditLog.timestamp))
+            .order_by(func.date(AuditLog.timestamp))
+            .all()
+        )
+        
+        return [{"date": str(row.date), "count": row.count} for row in q]
+    except Exception:
+        # Fallback if DB query fails or dialect issue
+        return []
+    finally:
+        session.close()
+
+
+def get_recent_decisions(limit: int = 10) -> List[Dict[str, Any]]:
+    """Get list of recent decisions for tabular display."""
+    session = SessionLocal()
+    try:
+        logs = (
+            session.query(AuditLog)
+            .order_by(AuditLog.timestamp.desc())
+            .limit(limit)
+            .all()
+        )
+        
+        return [
+            {
+                "id": l.id,
+                "timestamp": l.timestamp.isoformat(),
+                "decision": l.decision,
+                "probability": float(l.probability) if l.probability else 0.0,
+                "model_version": l.model_version
+            }
+            for l in logs
+        ]
+    finally:
+        session.close()
+
+
+def get_risk_distribution() -> List[Dict[str, Any]]:
+    """Return risk buckets based on approval probability."""
+    session = SessionLocal()
+    try:
+        # Fetch all probabilities
+        results = session.query(AuditLog.probability).all()
+        buckets = {"Low Risk (High Prob)": 0, "Medium Risk": 0, "High Risk (Low Prob)": 0}
+        
+        for (prob_str,) in results:
+            try:
+                p = float(prob_str) if prob_str else 0.0
+                # Higher probability = More likely to be Approved = SAFE (Low Risk)
+                if p >= 0.7:
+                    buckets["Low Risk (High Prob)"] += 1
+                elif p >= 0.3:
+                    buckets["Medium Risk"] += 1
+                else:
+                    buckets["High Risk (Low Prob)"] += 1
+            except (ValueError, TypeError):
+                continue
+                
+        return [{"category": k, "count": v} for k, v in buckets.items() if v > 0]
+    finally:
+        session.close()
+
+

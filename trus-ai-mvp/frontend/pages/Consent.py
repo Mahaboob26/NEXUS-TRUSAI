@@ -76,43 +76,7 @@ def reset_consent_state():
     return resp.json()
 
 
-def apply_bank_theme():
-    st.set_page_config(page_title="TRUS.AI – Consent", layout="wide")
-    st.markdown(
-        """
-        <style>
-        .block-container { padding-top: 2rem; background: #f3f4f6; }
-        .trus-header {
-            background: linear-gradient(90deg, #0d47a1, #1976d2);
-            padding: 1.5rem 2rem;
-            border-radius: 0 0 18px 18px;
-            color: #f9fafb !important;
-            box-shadow: 0 4px 12px rgba(15, 23, 42, 0.25);
-        }
-        .trus-card {
-            background: #ffffff;
-            border-radius: 14px;
-            padding: 1.5rem 1.75rem;
-            box-shadow: 0 6px 20px rgba(15, 23, 42, 0.10);
-            border: 1px solid rgba(148, 163, 184, 0.4);
-            color: #111827;
-        }
-        .trus-tag {
-            display: inline-flex;
-            align-items: center;
-            padding: 0.2rem 0.6rem;
-            border-radius: 999px;
-            background: rgba(234, 179, 8, 0.16);
-            color: #facc15;
-            font-size: 0.75rem;
-            font-weight: 600;
-            letter-spacing: 0.03em;
-            text-transform: uppercase;
-        }
-        </style>
-        """,
-        unsafe_allow_html=True,
-    )
+from theme import apply_bank_theme
 
 
 if not is_logged_in():

@@ -295,7 +295,12 @@ def governance_fairness():
 
 @app.get("/dashboard/summary")
 def dashboard_summary():
+    from services.audit import get_request_volume, get_recent_decisions, get_risk_distribution
+    
     stats = get_summary_stats()
+    stats["volume"] = get_request_volume(days=7)
+    stats["recent"] = get_recent_decisions(limit=10)
+    stats["risk_distribution"] = get_risk_distribution()
     return stats
 
 

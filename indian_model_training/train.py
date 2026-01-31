@@ -4,14 +4,13 @@ from pathlib import Path
 
 import numpy as np
 import pandas as pd
-from sklearn.compose import ColumnTransformer
-from sklearn.ensemble import RandomForestClassifier
-from sklearn.linear_model import LogisticRegression
-from sklearn.metrics import accuracy_score, f1_score, roc_auc_score
-from sklearn.model_selection import train_test_split
 from sklearn.pipeline import Pipeline
-from sklearn.preprocessing import OneHotEncoder, StandardScaler
-import shap
+from sklearn.preprocessing import StandardScaler
+from sklearn.impute import SimpleImputer
+from sklearn.linear_model import LogisticRegression
+from sklearn.ensemble import RandomForestClassifier
+from sklearn.model_selection import train_test_split
+from sklearn.metrics import accuracy_score, f1_score, roc_auc_score
 
 
 BASE_DIR = Path(__file__).resolve().parent
@@ -84,21 +83,44 @@ def load_data() -> pd.DataFrame:
     return simulate_indian_dataset(csv_path)
 
 
+
 def build_pipeline(df: pd.DataFrame):
     target_col = "Approved"
-    X = df.drop(columns=[target_col])
+
+    X_full = df.drop(columns=[target_col])
     y = df[target_col]
 
-    numeric_cols = X.select_dtypes(include=["int64", "float64"]).columns.tolist()
-    categorical_cols = [c for c in X.columns if c not in numeric_cols]
+    # Define feature groups
+    numeric_cols = [
+        "ApplicantIncome", "CoapplicantIncome", "LoanAmount", "Loan_Amount_Term",
+        "mobile_usage_score", "transaction_stability_score", "bank_balance",
+        "total_income", "emi", "income_to_emi_ratio", "credit_utilization",
+        "stability_score", "cibil_proxy_score"
+    ]
+    
+    # Selecting columns that exist in the dataframe (in case simulation changes)
+    numeric_cols = [c for c in numeric_cols if c in X_full.columns]
+    
+    categorical_cols = [
+        "Gender", "Married", "Dependents", "Education", 
+        "Self_Employed", "Property_Area", "Credit_History"
+    ]
+    categorical_cols = [c for c in categorical_cols if c in X_full.columns]
 
-    numeric_transformer = Pipeline(steps=[("scaler", StandardScaler())])
-    categorical_transformer = OneHotEncoder(handle_unknown="ignore")
+    from sklearn.compose import ColumnTransformer
+    from sklearn.preprocessing import OneHotEncoder
 
+    # Build the column transformer
     preprocessor = ColumnTransformer(
         transformers=[
-            ("num", numeric_transformer, numeric_cols),
-            ("cat", categorical_transformer, categorical_cols),
+            ("num", Pipeline(steps=[
+                ("imputer", SimpleImputer(strategy="median")),
+                ("scaler", StandardScaler())
+            ]), numeric_cols),
+            ("cat", Pipeline(steps=[
+                ("imputer", SimpleImputer(strategy="most_frequent")),
+                ("encoder", OneHotEncoder(handle_unknown="ignore"))
+            ]), categorical_cols),
         ]
     )
 
@@ -113,7 +135,10 @@ def build_pipeline(df: pd.DataFrame):
         ]
     )
 
-    return (log_reg, rf), X, y, numeric_cols, categorical_cols
+    # Return only the subset of columns used (for feature naming later)
+    X = X_full[numeric_cols + categorical_cols]
+    
+    return (log_reg, rf), X, y, numeric_cols + categorical_cols
 
 
 def evaluate_model(model, X_train, X_test, y_train, y_test):
@@ -133,7 +158,7 @@ def evaluate_model(model, X_train, X_test, y_train, y_test):
 
 def train_and_save():
     df = load_data()
-    (log_reg, rf), X, y, numeric_cols, categorical_cols = build_pipeline(df)
+    (log_reg, rf), X, y, numeric_cols = build_pipeline(df)
 
     X_train, X_test, y_train, y_test = train_test_split(
         X, y, test_size=0.2, random_state=42, stratify=y
@@ -156,8 +181,6 @@ def train_and_save():
         pickle.dump(
             {
                 "model": best_model,
-                "numeric_cols": numeric_cols,
-                "categorical_cols": categorical_cols,
                 "feature_names": X.columns.tolist(),
                 "metrics": best,
             },

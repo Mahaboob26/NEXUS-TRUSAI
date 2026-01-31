@@ -1,6 +1,6 @@
 import streamlit as st
 
-from auth import register_user, user_exists
+from auth import register_user
 
 
 def main():
@@ -20,13 +20,11 @@ def main():
     if st.button("Sign up"):
         if not username or not password:
             st.warning("Please enter username and password.")
-        elif user_exists(username):
-            st.error("Username already exists. Please choose another.")
         else:
             if register_user(username, password):
                 st.success("Signup successful. You can now log in from the Login page.")
             else:
-                st.error("Signup failed. Please try again.")
+                st.error("Signup failed. Username might already exist or backend is down.")
 
 
 if __name__ == "__main__":

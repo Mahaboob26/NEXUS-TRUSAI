@@ -1,58 +1,52 @@
-import json
-from pathlib import Path
-
+import requests
 import streamlit as st
 
-USERS_PATH = Path(__file__).resolve().parent / "users.json"
-
-
-def _load_users() -> dict:
-    if not USERS_PATH.exists():
-        return {}
-    try:
-        with open(USERS_PATH, "r", encoding="utf-8") as f:
-            return json.load(f)
-    except Exception:
-        return {}
-
-
-def _save_users(users: dict) -> None:
-    with open(USERS_PATH, "w", encoding="utf-8") as f:
-        json.dump(users, f, ensure_ascii=False, indent=2)
-
-
-def _hash_password(password: str) -> str:
-    import hashlib
-
-    return hashlib.sha256(password.encode("utf-8")).hexdigest()
+BACKEND_URL = "http://localhost:8000"
 
 
 def register_user(username: str, password: str) -> bool:
+    """Register a new user via the backend API."""
     username = username.strip().lower()
     if not username or not password:
         return False
 
-    users = _load_users()
-    if username in users:
+    try:
+        resp = requests.post(
+            f"{BACKEND_URL}/auth/signup",
+            json={"email": username, "password": password},
+            timeout=10,
+        )
+        if resp.status_code == 200:
+            return True
+        else:
+            # You might want to log the error reason here
+            print(f"Signup failed: {resp.text}")
+            return False
+    except Exception as e:
+        print(f"Signup exception: {e}")
         return False
-
-    users[username] = _hash_password(password)
-    _save_users(users)
-    return True
-
-
-def user_exists(username: str) -> bool:
-    username = username.strip().lower()
-    users = _load_users()
-    return username in users
 
 
 def login_user(username: str, password: str) -> bool:
+    """Login user via backend API and store token if successful."""
     username = username.strip().lower()
-    users = _load_users()
-    if username not in users:
+    try:
+        resp = requests.post(
+            f"{BACKEND_URL}/auth/login",
+            json={"email": username, "password": password},
+            timeout=10,
+        )
+        if resp.status_code == 200:
+            data = resp.json()
+            if data.get("ok"):
+                # Store token in session state for use in other requests
+                st.session_state["auth_token"] = data.get("token")
+                return True
+    except Exception as e:
+        print(f"Login exception: {e}")
         return False
-    return users[username] == _hash_password(password)
+    
+    return False
 
 
 def set_session(username: str) -> None:

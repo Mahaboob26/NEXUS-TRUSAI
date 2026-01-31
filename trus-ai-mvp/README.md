@@ -1,124 +1,65 @@
-# TRUS.AI MVP
+# NEXUS AI: Fair & Auditable Credit Scoring
 
-Transparent Responsible Unified System for Ethical AI in Banking.
+**NEXUS AI** is an advanced credit decisioning system designed to bring transparency, fairness, and governance to AI-driven lending. It combines a robust Random Forest credit model with an immutable audit log and a real-time governance dashboard.
 
-This MVP demonstrates:
+## 🚀 Key Features
 
-- Loan approval / denial via an ML model (German Credit dataset)
-- SHAP-based, plain-English explanations
-- Dynamic consent over input fields
-- Simple RAG-style chatbot advisor (local embeddings + FAISS)
-- Banker/regulator dashboard with approvals/denials and model pause control
-- Immutable audit trail stored in SQLite with hash chaining
+*   **🛡️ Governance-First Architecture**: Every model decision is cryptographically hashed and chained to ensure audit integrity.
+*   **⚖️ Algorithmic Fairness**: Built-in fairness monitors track Disparate Impact and demographic parity in real-time.
+*   **🧠 Explainable AI**: Utilizes SHAP values to explain *why* a loan was approved or denied.
+*   **📊 Executive Dashboard**: "Pro Max" glassmorphic UI visualizing portfolio risk, approval rates, and compliance alerts.
+*   **🇮🇳 Indian Context**: Trained on Indian loan datasets, optimized for local demographics.
 
-## 1. Project Structure
+## 🛠️ Tech Stack
 
-```text
-trus-ai-mvp/
-  backend/
-    main.py
-    model/
-      train_model.py
-      model.pkl
-      explainer.pkl
-    services/
-      explain.py
-      remediation.py
-      consent.py
-      chatbot.py
-      audit.py
-      fairness.py
-    data/
-      credit_data.csv
-    db.sqlite
-    requirements.txt
+*   **Frontend**: Streamlit (with Custom CSS/Glassmorphism)
+*   **Backend**: FastAPI (Python)
+*   **Database**: SQLite (SQLAlchemy)
+*   **ML**: Scikit-Learn (Random Forest, Logistic Regression)
+*   **Visualization**: Altair & Plotly
 
-  frontend/
-    streamlit_app.py
-    pages/
-      Consent.py
-      Dashboard.py
-      Chatbot.py
-    components/
-      charts.py
-```
+## ⚡ Quick Start
 
-## 2. Setup
+### Prerequisites
+*   Python 3.9+
+*   Node.js (for optional tools)
 
-From the `backend/` folder:
+### Installation
 
-```bash
-pip install -r requirements.txt
-```
+1.  **Clone the repository**
+    ```bash
+    git clone https://github.com/yourusername/nexus-ai.git
+    cd nexus-ai
+    ```
 
-This installs FastAPI, Streamlit, scikit-learn, SHAP, Fairlearn, FAISS, sentence-transformers, etc.
+2.  **Install Dependencies**
+    ```bash
+    pip install -r requirements.txt
+    ```
 
-> Note: the sentence-transformers model (`all-MiniLM-L6-v2`) will be downloaded on first use.
+3.  **Run the Application**
+    
+    *Terminal 1 (Backend):*
+    ```bash
+    cd backend
+    ./run_backend.bat
+    ```
+    
+    *Terminal 2 (Frontend):*
+    ```bash
+    cd frontend
+    ./run_frontend.bat
+    ```
 
-## 3. Train the Model
+4.  **Access the Dashboard**
+    Open your browser at `http://localhost:8501`.
 
-From `backend/`:
+## 📂 Project Structure
 
-```bash
-python -m model.train_model
-```
+*   `backend/`: FastAPI application, database models, and service logic.
+*   `frontend/`: Streamlit application pages and UI themes.
+*   `indian_model_training/`: ML training scripts and dataset exploration.
+*   `audit_report.txt`: Automated audit findings using SquirrelScan.
 
-This will:
-
-- Download the German Credit dataset from OpenML (if not already cached)
-- Save it as `data/credit_data.csv`
-- Train a logistic regression pipeline
-- Save `model/model.pkl` and `model/explainer.pkl`
-
-## 4. Run the FastAPI Backend
-
-From `backend/`:
-
-```bash
-uvicorn main:app --reload --port 8000
-```
-
-The backend exposes:
-
-- `GET /health`
-- `POST /predict`
-- `POST /chat`
-- `GET /dashboard/summary`
-- `POST /model/pause`
-- `POST /model/resume`
-
-The first prediction will also initialize `db.sqlite` and store an audit record.
-
-## 5. Run the Streamlit Frontend
-
-In a separate terminal, from the `frontend/` folder:
-
-```bash
-streamlit run streamlit_app.py
-```
-
-By default Streamlit runs on `http://localhost:8501` and connects to the backend at `http://localhost:8000`.
-
-### Pages
-
-- **Home** (`streamlit_app.py`):
-  - Simple loan application simulator
-  - Shows decision, probability, SHAP-based explanation, and remediation suggestions
-
-- **Consent** (`pages/Consent.py`):
-  - Toggle which input fields the model is allowed to use
-  - Shows baseline vs consent-modified decisions and probability delta
-
-- **Dashboard** (`pages/Dashboard.py`):
-  - Approval vs denial pie chart
-  - Total counts
-  - Buttons to pause/resume the model (calls backend endpoints)
-
-- **Chatbot** (`pages/Chatbot.py`):
-  - Simple advisor chatbot using local RAG over remediation guidance
-
-## 6. Notes
-
-- All components run locally; no paid cloud services are used.
-- The audit log is hash-chained via SHA-256 in `audit.py`.
-- For reproducibility you can clear `db.sqlite` and rerun predictions.
+---
+*Built for the Future of Responsible AI.*

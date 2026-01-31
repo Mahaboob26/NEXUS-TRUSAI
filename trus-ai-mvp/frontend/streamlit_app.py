@@ -21,57 +21,13 @@ def call_predict(features: dict, consent: dict):
     return resp.json()
 
 
-def apply_bank_theme():
-    st.set_page_config(page_title="TRUS.AI Loan Decision", layout="wide")
-    st.markdown(
-        """
-        <style>
-        .block-container {
-            padding-top: 2rem;
-            background: #f3f4f6;
-        }
-        .trus-header {
-            background: linear-gradient(90deg, #0d47a1, #1976d2);
-            padding: 1.5rem 2rem;
-            border-radius: 0 0 18px 18px;
-            color: #f9fafb !important;
-            box-shadow: 0 4px 12px rgba(15, 23, 42, 0.25);
-        }
-        .trus-card {
-            background: #ffffff;
-            border-radius: 14px;
-            padding: 1.5rem 1.75rem;
-            box-shadow: 0 6px 20px rgba(15, 23, 42, 0.10);
-            border: 1px solid rgba(148, 163, 184, 0.4);
-            color: #111827;
-        }
-        .trus-primary-btn button[kind="primary"] {
-            background: linear-gradient(90deg, #2563eb, #22c55e) !important;
-            border: none !important;
-            color: #f9fafb !important;
-            font-weight: 600 !important;
-        }
-        .trus-tag {
-            display: inline-flex;
-            align-items: center;
-            padding: 0.2rem 0.6rem;
-            border-radius: 999px;
-            background: rgba(34, 197, 94, 0.1);
-            color: #22c55e;
-            font-size: 0.75rem;
-            font-weight: 600;
-            letter-spacing: 0.03em;
-            text-transform: uppercase;
-        }
-        </style>
-        """,
-        unsafe_allow_html=True,
-    )
+from theme import apply_bank_theme
 
 
 def main():
     if not is_logged_in():
         st.set_page_config(page_title="TRUS.AI Loan Decision", layout="wide")
+        st.title("TRUS.AI Login Required")
         st.warning("Please login first.")
         st.page_link("pages/Login.py", label="Go to Login")
         st.stop()

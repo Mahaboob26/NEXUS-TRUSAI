@@ -3,31 +3,7 @@ import streamlit as st
 from auth import is_logged_in, login_user, set_session, logout
 
 
-def apply_bank_theme():
-    st.set_page_config(page_title="TRUS.AI – Login", layout="wide")
-    st.markdown(
-        """
-        <style>
-        .block-container { padding-top: 2rem; background: #f3f4f6; }
-        .trus-header {
-            background: linear-gradient(90deg, #0d47a1, #1976d2);
-            padding: 1.5rem 2rem;
-            border-radius: 0 0 18px 18px;
-            color: #f9fafb !important;
-            box-shadow: 0 4px 12px rgba(15, 23, 42, 0.25);
-        }
-        .trus-card {
-            background: #ffffff;
-            border-radius: 14px;
-            padding: 1.5rem 1.75rem;
-            box-shadow: 0 6px 20px rgba(15, 23, 42, 0.10);
-            border: 1px solid rgba(148, 163, 184, 0.4);
-            color: #111827;
-        }
-        </style>
-        """,
-        unsafe_allow_html=True,
-    )
+from theme import apply_bank_theme
 
 
 apply_bank_theme()
