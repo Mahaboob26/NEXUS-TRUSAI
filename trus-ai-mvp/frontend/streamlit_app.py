@@ -29,35 +29,40 @@ def start_backend():
         return
 
     print("🚀 Starting Backend in Background...")
-    # Assume we are in trus-ai-mvp root or similar. 
-    # Streamlit Cloud runs from root usually.
-    # We need to find main.py.
     
-    # Try to locate backend
-    backend_path = "backend"
-    if not os.path.exists(backend_path):
-        # We might be inside frontend?
-        if os.path.exists("../backend"):
-            backend_path = "../backend"
+    # Try to locate backend path strategies
+    potential_paths = [
+        "backend",                   # If CWD is trus-ai-mvp/
+        "../backend",                # If CWD is trus-ai-mvp/frontend/
+        "trus-ai-mvp/backend",       # If CWD is repo root
+        "./trus-ai-mvp/backend"
+    ]
+    
+    backend_path = None
+    for p in potential_paths:
+        if os.path.isdir(p) and os.path.exists(os.path.join(p, "main.py")):
+            backend_path = p
+            break
             
-    # Add backend to sys.path so we can import if needed, 
-    # but running via uvicorn subprocess is safer for thread isolation.
-    
+    if not backend_path:
+        print("❌ Could not find backend directory. Monolith mode failed.")
+        return
+
+    print(f"✅ Found backend at: {backend_path}")
+
     # Command: uvicorn main:app --host 0.0.0.0 --port 8000
-    # We need to run this relative to the backend dir so imports work
-    
     cmd = [sys.executable, "-m", "uvicorn", "main:app", "--host", "localhost", "--port", "8000"]
     
+    # Use standard process creation
     subprocess.Popen(
         cmd, 
-        cwd=backend_path, # Critical: set CWD to backend/
-        stdout=subprocess.DEVNULL,
-        stderr=subprocess.DEVNULL
+        cwd=backend_path,
+        stdout=None, # Let it print to console logs
+        stderr=None
     )
     
-    # Wait a bit for it to boot
-    time.sleep(3)
-    print("✅ Backend started?")
+    # Wait longer for it to boot
+    time.sleep(5)
 
 # Attempt to start backend if needed
 start_backend()
