@@ -1,10 +1,11 @@
 services:
   - type: web
-    name: nexus-trusai-backend
-    env: python
-    rootDir: trus-ai-mvp/backend
-    buildCommand: pip install -r requirements.txt
-    startCommand: uvicorn main:app --host 0.0.0.0 --port 10000
+    name: nexus-trusai-monolith
+    env: docker
+    plan: free
+    region: ohio
+    # No buildCommand needed for Docker
+    # No startCommand needed for Docker (uses CMD from Dockerfile)
     envVars:
-      - key: PYTHON_VERSION
-        value: 3.9.13
+      - key: BACKEND_URL
+        value: http://127.0.0.1:8000

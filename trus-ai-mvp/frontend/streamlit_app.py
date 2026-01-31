@@ -15,52 +15,6 @@ import time
 import requests
 import uvicorn
 
-# --- THREADED MONOLITH BACKEND ---
-# This runs FastAPI *inside* the Streamlit process to guarantee connectivity.
-
-def start_backend_thread():
-    try:
-        # 1. Setup Paths to find backend
-        current_dir = os.path.dirname(os.path.abspath(__file__))
-        # Repo root is likely up two levels (frontend -> trus-ai-mvp -> root) or one level
-        # We need to find 'trus-ai-mvp/backend'
-        
-        # Strategy: Add '../backend' to path
-        backend_path = os.path.abspath(os.path.join(current_dir, "..", "backend"))
-        if backend_path not in sys.path:
-            sys.path.append(backend_path)
-            
-        # 2. Import FastAPI app directly
-        from main import app as fastapi_app
-        
-        # 3. Configure Config
-        # Using port 8000 might conflicts if Streamlit wants it? 
-        # Usually Streamlit is 8501. 8000 should be free.
-        config = uvicorn.Config(app=fastapi_app, host="127.0.0.1", port=8000, log_level="error")
-        server = uvicorn.Server(config)
-        
-        # 4. Run in Thread
-        thread = threading.Thread(target=server.run, daemon=True)
-        thread.start()
-        print("✅ Threaded Backend Started on port 8000")
-        
-    except Exception as e:
-        print(f"❌ Failed to start backend thread: {e}")
-
-# Check and Start
-def ensure_backend():
-    try:
-        requests.get("http://localhost:8000/health", timeout=0.1)
-    except:
-        print("🚀 Starting Monolith Backend...")
-        start_backend_thread()
-        # Give it a moment to bind
-        time.sleep(2)
-
-if not os.getenv("BACKEND_URL"):
-    ensure_backend()
-    os.environ["BACKEND_URL"] = "http://localhost:8000"
-
 BACKEND_URL = os.getenv("BACKEND_URL", "http://localhost:8000")
 
 # --- UI STATUS INDICATOR ---
