@@ -21,10 +21,11 @@ def main():
         if not username or not password:
             st.warning("Please enter username and password.")
         else:
-            if register_user(username, password):
+            success, msg = register_user(username, password)
+            if success:
                 st.success("Signup successful. You can now log in from the Login page.")
             else:
-                st.error("Signup failed. Username might already exist or backend is down.")
+                st.error(msg)
 
 
 if __name__ == "__main__":

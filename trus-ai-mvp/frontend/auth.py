@@ -5,11 +5,11 @@ import os
 BACKEND_URL = os.getenv("BACKEND_URL", "http://localhost:8000")
 
 
-def register_user(username: str, password: str) -> bool:
+def register_user(username: str, password: str) -> tuple[bool, str]:
     """Register a new user via the backend API."""
     username = username.strip().lower()
     if not username or not password:
-        return False
+        return False, "Username and password are required"
 
     try:
         resp = requests.post(
@@ -18,14 +18,20 @@ def register_user(username: str, password: str) -> bool:
             timeout=10,
         )
         if resp.status_code == 200:
-            return True
+            return True, "Success"
         else:
-            # You might want to log the error reason here
-            print(f"Signup failed: {resp.text}")
-            return False
+            # Try to get detail from backend
+            try:
+                detail = resp.json().get("detail", resp.text)
+            except:
+                detail = resp.text
+            print(f"Signup failed: {detail}")
+            return False, f"Signup failed: {detail}"
+    except requests.exceptions.ConnectionError:
+        return False, f"Cannot connect to Backend at {BACKEND_URL}. Is it running?"
     except Exception as e:
         print(f"Signup exception: {e}")
-        return False
+        return False, f"Error: {e}"
 
 
 def login_user(username: str, password: str) -> bool:
