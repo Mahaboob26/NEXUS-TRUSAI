@@ -43,24 +43,25 @@ def ensure_backend():
 
 # --- UI STATUS INDICATOR ---
 @st.fragment
-def show_status():
-    with st.sidebar:
-        st.divider()
-        st.markdown("### 🟢 System Status")
-        try:
-            # Short timeout to avoid blocking UI
-            resp = requests.get(f"{BACKEND_URL}/health", timeout=0.5)
-            if resp.status_code == 200:
-                st.success(f"Backend: Online (v{resp.json().get('version', '0.1')})")
-            else:
-                st.error(f"Backend: Error {resp.status_code}")
-        except Exception:
-            st.error("Backend: Offline")
-            if st.button("Try Restart Backend"):
-                ensure_backend()
-                st.rerun()
+def status_fragment():
+    """Independent UI component for health status."""
+    st.divider()
+    st.markdown("### 🟢 System Status")
+    try:
+        # Short timeout to avoid blocking UI
+        resp = requests.get(f"{BACKEND_URL}/health", timeout=0.5)
+        if resp.status_code == 200:
+            st.success(f"Backend: Online (v{resp.json().get('version', '0.1')})")
+        else:
+            st.error(f"Backend: Error {resp.status_code}")
+    except Exception:
+        st.error("Backend: Offline")
+        if st.button("Try Restart Backend"):
+            ensure_backend()
+            st.rerun()
 
-show_status()
+with st.sidebar:
+    status_fragment()
 
 
 def call_predict(features: dict, consent: dict):
