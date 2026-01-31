@@ -9,6 +9,59 @@ from auth import is_logged_in, logout
 
 
 import os
+import sys
+import subprocess
+import time
+import requests
+
+# --- MONOLITH DEPLOYMENT LOGIC ---
+# If we are in the cloud (no local backend), start it here.
+def is_backend_running(url="http://localhost:8000/health"):
+    try:
+        requests.get(url, timeout=1)
+        return True
+    except:
+        return False
+
+def start_backend():
+    # Only start if not already running
+    if is_backend_running():
+        return
+
+    print("🚀 Starting Backend in Background...")
+    # Assume we are in trus-ai-mvp root or similar. 
+    # Streamlit Cloud runs from root usually.
+    # We need to find main.py.
+    
+    # Try to locate backend
+    backend_path = "backend"
+    if not os.path.exists(backend_path):
+        # We might be inside frontend?
+        if os.path.exists("../backend"):
+            backend_path = "../backend"
+            
+    # Add backend to sys.path so we can import if needed, 
+    # but running via uvicorn subprocess is safer for thread isolation.
+    
+    # Command: uvicorn main:app --host 0.0.0.0 --port 8000
+    # We need to run this relative to the backend dir so imports work
+    
+    cmd = [sys.executable, "-m", "uvicorn", "main:app", "--host", "localhost", "--port", "8000"]
+    
+    subprocess.Popen(
+        cmd, 
+        cwd=backend_path, # Critical: set CWD to backend/
+        stdout=subprocess.DEVNULL,
+        stderr=subprocess.DEVNULL
+    )
+    
+    # Wait a bit for it to boot
+    time.sleep(3)
+    print("✅ Backend started?")
+
+# Attempt to start backend if needed
+start_backend()
+
 BACKEND_URL = os.getenv("BACKEND_URL", "http://localhost:8000")
 
 
