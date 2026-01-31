@@ -17,8 +17,8 @@ COPY . .
 # Setup Supervisor
 COPY scripts/supervisord.conf /etc/supervisor/conf.d/supervisord.conf
 
-# Expose Streamlit port
-EXPOSE 8501
+# Expose Hugging Face default port
+EXPOSE 7860
 
 # Start supervisor
 CMD ["/usr/bin/supervisord"]
